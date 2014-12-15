@@ -5,6 +5,7 @@ void* runThread(void *) {
   pthread_exit(NULL);
 }
 
+//Measure read overhead
 double CPU::getReadOverhead() {
   double sum = 0;
   uint64_t start, end;
@@ -18,6 +19,7 @@ double CPU::getReadOverhead() {
   return ((double)sum) / ((double)(TIMES));
 }
 
+// Measure loop overhead
 double CPU::getLoopOverhead() {
   uint64_t start;
   uint64_t end;
@@ -33,6 +35,7 @@ double CPU::getLoopOverhead() {
   return (double)total_time / TIMES;
 }
 
+// Measure procedure call overhead with different size of arrays
 void CPU::getProcedureOverhead(vector<double> &ans) {
   uint64_t start;
   uint64_t end;
@@ -129,6 +132,7 @@ void CPU::getProcedureOverhead(vector<double> &ans) {
   return;
 }
 
+// Measure system call overhead
 double CPU::sysCallOverhead() {
   uint64_t start;
   uint64_t end;
@@ -146,6 +150,7 @@ double CPU::sysCallOverhead() {
   return (double)total_time / (double)TIMES;
 }
 
+// Measure thread create overhead by using posix thread library
 double CPU::threadCreationOverhead() {
   pthread_t td;
   uint64_t start, end, total_time;
@@ -165,6 +170,7 @@ double CPU::threadCreationOverhead() {
   return (double)total_time / (double)CREAT_TIMES;
 }
 
+// Measure process creation overhead
 double CPU::processCreationOverhead() {
   uint64_t start;
   uint64_t end;
@@ -190,6 +196,7 @@ double CPU::processCreationOverhead() {
 
 }
 
+// Measure process context switch overhead
 uint64_t CPU::calculateSwitchTime(int *fd) {
   uint64_t start;
   uint64_t end;
@@ -215,6 +222,7 @@ uint64_t CPU::calculateSwitchTime(int *fd) {
   return (result);
 }
 
+// Helper funtion to calculate average process context switch time
 double* CPU::getContextSwitchTime() {
   int fd[2];
   pipe(fd);
@@ -237,6 +245,7 @@ double* CPU::getContextSwitchTime() {
   return res;
 }
 
+//Calculate thread context switch time
 uint64_t CPU::calculateKernelSwitch() {
   uint64_t threadSt;
   uint64_t threadEd;
@@ -245,15 +254,16 @@ uint64_t CPU::calculateKernelSwitch() {
   pipe(fd);
   pthread_create(&thread, NULL, foo, NULL);
 
-    rdtsc();
+  rdtsc();
 
-    threadSt = rdtsc();
+  threadSt = rdtsc();
   pthread_join(thread, NULL);
   read(fd[0], (void*)&threadEd, sizeof(uint64_t));
 
     return threadEd - threadSt;
 }
 
+// Helper funtion to calculate average thread context switch time
 double* CPU::getKernelSwitchOverhead() {
   uint64_t s[CREAT_TIMES];
   double sum = 0.0;
@@ -281,6 +291,7 @@ double* CPU::getKernelSwitchOverhead() {
   return res;
 }
 
+// From here are all the util function to wrap around previous actuall test functions
 void CPU::testReadOverhead(fstream &file) {
   cout << "Getting Read Overhead..." << endl;
 

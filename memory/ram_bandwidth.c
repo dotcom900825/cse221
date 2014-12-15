@@ -95,7 +95,7 @@ int main(int argc, char const *argv[])
 		counter = counter * 2;
 	int *array = (int *)malloc(counter*sizeof(int));
 	/*intialize*/
-        int j;
+  int j;
 	for (j = 0; j < counter; ++j)
 	{
 		array[j] = 0;
@@ -106,8 +106,8 @@ int main(int argc, char const *argv[])
 	int rwTimes = rwCount;
 
 	FILE *f1, *f2;
-	f1=fopen("RAM_wr","w+");
-	f2=fopen("RAM_rd","w+");
+	f1=fopen("RAM_wr_bandwidth","w+");
+	f2=fopen("RAM_rd_bandwidth","w+");
 	int i;
 	for (i = 0; i < rwTimes; ++i){
 		wtTime=getWtTime(array,counter);

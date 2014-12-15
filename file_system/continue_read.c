@@ -1,3 +1,6 @@
+// Continuously perform read operation on designated file. To setup the 
+// test environment for the actuall contention read program
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>

@@ -1,3 +1,5 @@
+//Perform random and sequential file block read experiment
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>

@@ -1,3 +1,4 @@
+# Helper function to generate random data filled test file
 from random import randrange
 import numpy
 

@@ -1,3 +1,7 @@
+// This code snippet is implemented, tested on the local environment
+// but the result is not too promising, so we shift to the approach 
+// described in the report, but we still leave the code snippet here.
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
