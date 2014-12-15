@@ -8,68 +8,68 @@ void* runThread(void *) {
 double CPU::getReadOverhead() {
   double sum = 0;
   uint64_t start, end;
+  rdtsc();
   for (int i = 0; i < TIMES; i++) {
-    rdtsc();
     start = rdtsc();
     end = rdtsc();
     sum = sum + (end - start);
   }
 
-  return ((double)sum) / ((double)(TIMES - 1));
+  return ((double)sum) / ((double)(TIMES));
 }
 
 double CPU::getLoopOverhead() {
   uint64_t start;
   uint64_t end;
 
-    rdtsc();
-    uint64_t total_time = 0;
+  rdtsc();
+  uint64_t total_time = 0;
+  start = rdtsc();
   for (int i = 0; i < TIMES; i++) {
-        start = rdtsc();
-        end = rdtsc();
-        total_time += end - start;
-    }
+  }
+  end = rdtsc();
+  total_time += end - start;
 
-  return ((double)total_time) / ((double) TIMES);
+  return (double)total_time / TIMES;
 }
 
 void CPU::getProcedureOverhead(vector<double> &ans) {
-    uint64_t start;
-    uint64_t end;
+  uint64_t start;
+  uint64_t end;
   uint64_t s = 0;
-    rdtsc();
-    uint64_t total_time = 0;
+  uint64_t total_time = 0;
+  rdtsc();
 
-    for (int i = 0; i < TIMES; i++) {
-        start = rdtsc();
-        test0();
-        end = rdtsc();
+  for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      test0();
+      end = rdtsc();
 
-        total_time += end - start;
-    }
-    ans[0] = (double)total_time / (double)TIMES;
+      total_time += (end - start);
+  }
+  ans[0] = (double)total_time / (double)TIMES;
 
-    rdtsc();
-    total_time = 0;
-    for (int i = 0; i < TIMES; i++) {
-        start = rdtsc();
-        test1(1);
-        end = rdtsc();
+  rdtsc();
+  total_time = 0;
+  for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      test1(1);
+      end = rdtsc();
 
-        total_time += end - start;
-    }
-    ans[1] = (double)total_time / (double)TIMES;
+      total_time += end - start;
+  }
+  ans[1] = (double)total_time / (double)TIMES;
 
-    rdtsc();
-    total_time = 0;
-    for (int i = 0; i < TIMES; i++) {
-        start = rdtsc();
-        test2(1, 2);
-        end = rdtsc();
+  rdtsc();
+  total_time = 0;
+  for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      test2(1, 2);
+      end = rdtsc();
 
-        total_time += end - start;
-    }
-    ans[2] = (double)total_time / (double)TIMES;
+      total_time += end - start;
+  }
+  ans[2] = (double)total_time / (double)TIMES;
 
   rdtsc();
     total_time = 0;
@@ -194,21 +194,25 @@ uint64_t CPU::calculateSwitchTime(int *fd) {
   uint64_t start;
   uint64_t end;
   pid_t cpid;
-  
+  uint64_t result = 0;
+
   if ((cpid = fork()) != 0) {
     rdtsc();
     start = rdtsc();
 
-        wait(NULL);
+    wait(NULL);
     read(fd[0], (void*)&end, sizeof(uint64_t));
-    }
+  }
   else {
     end = rdtsc();
 
     write(fd[1], (void*)&end, sizeof(uint64_t));
     exit(1);
-    }
-  return (end - start);
+  }
+  if(end > start){
+    result = end - start;
+  }
+  return (result);
 }
 
 double* CPU::getContextSwitchTime() {
@@ -218,25 +222,19 @@ double* CPU::getContextSwitchTime() {
   double sum = 0;
   int i = 0;
 
-    while(i < CREAT_TIMES) {
-        uint64_t res = calculateSwitchTime(fd);
-        if (res > 0) {
+  while(i < CREAT_TIMES) {
+    uint64_t res = calculateSwitchTime(fd);
+    if (res > 0) {
       s[i] = res;
       sum += s[i];
       ++i;
     }
   }
 
-    static double res[2];
-  res[0] = (double)sum / (double)CREAT_TIMES;
-  double tmp = 0.0;
-  
-  for(i = 0; i < CREAT_TIMES; ++i) {
-    tmp += ((double)(s[i] - res[0])) * ((double)(s[i] - res[0]));
-  }
-    res[1] = sqrt((double) (tmp / (double)(CREAT_TIMES-1)));
+  static double res;
+  res = (double)sum / (double)CREAT_TIMES;
 
-    return res;
+  return res;
 }
 
 uint64_t CPU::calculateKernelSwitch() {
@@ -318,7 +316,7 @@ void CPU::testProcedureCallOverhead(fstream &file) {
     cout << "File open failed!" << endl;
     return;
   }
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 10; i++) {
     vector<double> result(8, 0.0);
     getProcedureOverhead(result);
 
@@ -384,11 +382,10 @@ void CPU::testContextSwitchOverhead(fstream &file) {
     return;
   }
   for (int i = 0; i < 10; i++) {
-    double* contextSwitchAvg = getContextSwitchTime();
+    double contextSwitchAvg = getContextSwitchTime();
 
     file << setiosflags(ios::fixed)
-       << contextSwitchAvg[0] << " " 
-       << contextSwitchAvg[1] << "\n";
+       << contextSwitchAvg[0] << "\n";
   }
   file.close();
 }

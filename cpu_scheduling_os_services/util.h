@@ -1,14 +1,14 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
-#define TIMES 10000
+#define TIMES 1000000
 #define CREAT_TIMES 500
 
 static int fd[2];
 
 static inline uint64_t rdtsc(void) {
 	uint32_t lo, hi;
-	__asm__ __volatile__("rdtsc;": "=a" (lo), "=d" (hi));
+	__asm__ __volatile__("xor %%eax, %%eax;" "cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
 	return (((uint64_t)hi << 32) | lo);
 }
 
